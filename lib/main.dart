@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:developer';
 
 import './controller.dart';
 import './model.dart';
@@ -122,7 +123,7 @@ class _HomePageState extends State<HomePage> {
 														// borderRadius: BorderRadius.all(Radius.circular(15))
 													),
 													onTap: (){
-														Navigator.pushNamed(context, '/Article');
+														Navigator.pushNamed(context, '/Article',arguments: articles[index].shortCode);
 													},
 												);
 											},
@@ -146,17 +147,94 @@ class ArticlePage extends StatelessWidget{
 	const ArticlePage({super.key});
 	@override
 	Widget build(BuildContext context) {
+		String articleShortCode = ModalRoute.of(context)!.settings.arguments as String;
+		log('shortCode : $articleShortCode');
 		return Scaffold(
 			appBar: AppBar(
-				title: const Text("Article"),
+				title: const Text(''),
 			),
-			body: Center(
-				child: ElevatedButton(
-					child: const Text("Back to home"),
-					onPressed: () {
-						Navigator.pop(context);
-					},
-				),
+			body: Stack(
+				children:[
+					// FutureBuilder<String>(
+					// 	future: articleContentAPI('34czdt'), // TODO: Article Content
+					// 	builder: (context, snapshot) {
+					// 		if (snapshot.connectionState == ConnectionState.waiting) {
+					// 			return const CircularProgressIndicator();
+					// 			} else if (snapshot.hasError) {
+					// 				return Text('Error: ${snapshot.error}');
+					// 			} else {
+					// 				String content = snapshot.data ?? "";
+					// 				return ListView.builder(
+					// 					itemCount: 1,
+					// 					itemBuilder: (context, index) {
+					// 						return ListTile(
+					// 							leading: const Icon(Icons.mp),
+					// 							title: Text(content),
+					// 							// subtitle: Text('${comments[index].author.school.toString()} - ${comments[index].author.username.toString()}'),
+					// 							textColor: Colors.green,
+					// 							tileColor: Colors.black,
+					// 							hoverColor: Colors.orange,
+					// 							splashColor: Colors.teal,
+					// 							selected: true,
+					// 							shape: const RoundedRectangleBorder(
+					// 								side: BorderSide(color: Colors.lime, width: 3),
+					// 								// borderRadius: BorderRadius.all(Radius.circular(15))
+					// 							),
+					// 							onTap: (){
+					// 								Navigator.pushNamed(context, '/Article');
+					// 							},
+					// 						);
+					// 					},
+					// 				);
+					// 		}
+					// 	},
+					// ),
+					FutureBuilder<List<Comment>>(
+						future: articleCommentAPI(articleShortCode), // TODO: Comment
+						builder: (context, snapshot) {
+							if (snapshot.connectionState == ConnectionState.waiting) {
+								return const CircularProgressIndicator();
+								} else if (snapshot.hasError) {
+									return Text('Error: ${snapshot.error}');
+								} else {
+									List<Comment> comments = snapshot.data ?? [];
+									return ListView.builder(
+										itemCount: comments.length,
+										itemBuilder: (context, index) {
+											return ListTile(
+												leading: const Icon(Icons.mp),
+												title: Text(comments[index].content),
+												// subtitle: Text('${comments[index].author.school.toString()} - ${comments[index].author.username.toString()}'),
+												textColor: Colors.green,
+												tileColor: Colors.black,
+												hoverColor: Colors.orange,
+												splashColor: Colors.teal,
+												// selected: true,
+												shape: const RoundedRectangleBorder(
+													side: BorderSide(color: Colors.lime, width: 3),
+													// borderRadius: BorderRadius.all(Radius.circular(15))
+												),
+												onTap: (){
+													Navigator.pushNamed(context, '/Article');
+												},
+											);
+										},
+									);
+							}
+						},
+					),
+					Positioned(
+						bottom: 0,
+						right: 0,
+						child: ElevatedButton(
+							child: const Text("Back to home"),
+
+							onPressed: () {
+								Navigator.pop(context);
+							},
+					),
+					),
+				]
 			),
 		);
 	}

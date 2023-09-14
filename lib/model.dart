@@ -88,3 +88,26 @@ class Author {
 		);
 	}
 }
+
+class Comment {
+	late String content;
+	late String? createdAt;
+	late int? likes;
+	// late Author? author;
+
+	Comment({
+		required this.content,
+		required this.createdAt,
+		required this.likes,
+		// this.author,
+	});
+
+	factory Comment.fromJson(Map<String, dynamic> json){
+		return Comment(
+			content: json['content'],
+			createdAt: json['created_at'],
+			likes: json['likes'],
+			// author: json['author'],
+		);
+	}
+}
