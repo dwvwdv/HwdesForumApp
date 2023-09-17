@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:developer';
 
 import './controller.dart';
@@ -22,40 +23,16 @@ class Hwdes extends StatelessWidget {
 
 			},
 			theme: ThemeData(
-				// This is the theme of your application.
-				//
-				// TRY THIS: Try running your application with "flutter run". You'll see
-				// the application has a blue toolbar. Then, without quitting the app,
-				// try changing the seedColor in the colorScheme below to Colors.green
-				// and then invoke "hot reload" (save your changes or press the "hot
-				// reload" button in a Flutter-supported IDE, or press "r" if you used
-				// the command line to start the app).
-				//
-				// Notice that the counter didn't reset back to zero; the application
-				// state is not lost during the reload. To reset the state, use hot
-				// restart instead.
-				//
-				// This works for code too, not just values: Most code changes can be
-				// tested with just a hot reload.
 				colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
 				useMaterial3: true,
 			),
-			home: const HomePage(title: 'hwdes forum'),
+			home: const HomePage(title: '歡迎來到夯溫電論壇'),
 		);
 	}
 }
 
 class HomePage extends StatefulWidget {
 	const HomePage({super.key, required this.title});
-
-	// This widget is the home page of your application. It is stateful, meaning
-	// that it has a State object (defined below) that contains fields that affect
-	// how it looks.
-
-	// This class is the configuration for the state. It holds the values (in this
-	// case the title) provided by the parent (in this case the App widget) and
-	// used by the build method of the State. Fields in a Widget subclass are
-	// always marked "final".
 
 	final String title;
 
@@ -65,33 +42,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-	List<Widget> getList(){
-		List<Widget> list = [];
-		for(int i=0;i<5;i++){
-		list.add(Text('hello$i',style: Theme.of(context).textTheme.headlineMedium));
-		list.add(Text('dwv$i',style: Theme.of(context).textTheme.headlineSmall));
-		}
-		articlesAPI();
-		return list;
-	}
-
-
 	@override
 	Widget build(BuildContext context) {
-		// This method is rerun every time setState is called, for instance as done
-		// by the _incrementCounter method above.
-		//
-		// The Flutter framework has been optimized to make rerunning build methods
-		// fast, so that you can just rebuild anything that needs updating rather
-		// than having to individually change instances of widgets.
 		return Scaffold(
 			appBar: AppBar(
-				// TRY THIS: Try changing the color here to a specific color (to
-				// Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-				// change color while the other colors stay the same.
 				backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-				// Here we take the value from the MyHomePage object that was created by
-				// the App.build method, and use it to set our appbar title.
 				title: Text(widget.title),
 			),
 			body: Center(
@@ -123,7 +78,7 @@ class _HomePageState extends State<HomePage> {
 														// borderRadius: BorderRadius.all(Radius.circular(15))
 													),
 													onTap: (){
-														Navigator.pushNamed(context, '/Article',arguments: articles[index].shortCode);
+														Navigator.pushNamed(context, '/Article',arguments: articles[index]);
 													},
 												);
 											},
@@ -134,11 +89,6 @@ class _HomePageState extends State<HomePage> {
 					],
 				),
 			),
-			// floatingActionButton: FloatingActionButton(
-			// 	onPressed: _incrementCounter,
-			// 	tooltip: 'Increment',
-			// 	child: const Icon(Icons.local_atm_sharp),
-			// ), // This trailing comma makes auto-formatting nicer for build methods.
 		);
 	}
 }
@@ -147,95 +97,99 @@ class ArticlePage extends StatelessWidget{
 	const ArticlePage({super.key});
 	@override
 	Widget build(BuildContext context) {
-		String articleShortCode = ModalRoute.of(context)!.settings.arguments as String;
-		log('shortCode : $articleShortCode');
+		Article article = ModalRoute.of(context)!.settings.arguments as Article;
 		return Scaffold(
 			appBar: AppBar(
-				title: const Text(''),
+				title: Text(article.title,style: const TextStyle(fontSize: 15),),
 			),
-			body: Stack(
-				children:[
-					// FutureBuilder<String>(
-					// 	future: articleContentAPI('34czdt'), // TODO: Article Content
-					// 	builder: (context, snapshot) {
-					// 		if (snapshot.connectionState == ConnectionState.waiting) {
-					// 			return const CircularProgressIndicator();
-					// 			} else if (snapshot.hasError) {
-					// 				return Text('Error: ${snapshot.error}');
-					// 			} else {
-					// 				String content = snapshot.data ?? "";
-					// 				return ListView.builder(
-					// 					itemCount: 1,
-					// 					itemBuilder: (context, index) {
-					// 						return ListTile(
-					// 							leading: const Icon(Icons.mp),
-					// 							title: Text(content),
-					// 							// subtitle: Text('${comments[index].author.school.toString()} - ${comments[index].author.username.toString()}'),
-					// 							textColor: Colors.green,
-					// 							tileColor: Colors.black,
-					// 							hoverColor: Colors.orange,
-					// 							splashColor: Colors.teal,
-					// 							selected: true,
-					// 							shape: const RoundedRectangleBorder(
-					// 								side: BorderSide(color: Colors.lime, width: 3),
-					// 								// borderRadius: BorderRadius.all(Radius.circular(15))
-					// 							),
-					// 							onTap: (){
-					// 								Navigator.pushNamed(context, '/Article');
-					// 							},
-					// 						);
-					// 					},
-					// 				);
-					// 		}
-					// 	},
-					// ),
-					FutureBuilder<List<Comment>>(
-						future: articleCommentAPI(articleShortCode), // TODO: Comment
-						builder: (context, snapshot) {
-							if (snapshot.connectionState == ConnectionState.waiting) {
-								return const CircularProgressIndicator();
-								} else if (snapshot.hasError) {
-									return Text('Error: ${snapshot.error}');
-								} else {
-									List<Comment> comments = snapshot.data ?? [];
-									return ListView.builder(
-										itemCount: comments.length,
-										itemBuilder: (context, index) {
-											return ListTile(
-												leading: const Icon(Icons.mp),
-												title: Text(comments[index].content),
-												// subtitle: Text('${comments[index].author.school.toString()} - ${comments[index].author.username.toString()}'),
-												textColor: Colors.green,
-												tileColor: Colors.black,
-												hoverColor: Colors.orange,
-												splashColor: Colors.teal,
-												// selected: true,
-												shape: const RoundedRectangleBorder(
-													side: BorderSide(color: Colors.lime, width: 3),
-													// borderRadius: BorderRadius.all(Radius.circular(15))
-												),
-												onTap: (){
-													Navigator.pushNamed(context, '/Article');
-												},
-											);
-										},
-									);
-							}
-						},
-					),
-					Positioned(
-						bottom: 0,
-						right: 0,
-						child: ElevatedButton(
-							child: const Text("Back to home"),
-
-							onPressed: () {
-								Navigator.pop(context);
+			body: Center(
+				child: Stack(
+					children:[
+						// FutureBuilder<String>(
+						// 	future: articleContentAPI('34czdt'), // TODO: Article Content
+						// 	builder: (context, snapshot) {
+						// 		if (snapshot.connectionState == ConnectionState.waiting) {
+						// 			return const CircularProgressIndicator();
+						// 			} else if (snapshot.hasError) {
+						// 				return Text('Error: ${snapshot.error}');
+						// 			} else {
+						// 				String content = snapshot.data ?? "";
+						// 				return ListView.builder(
+						// 					itemCount: 1,
+						// 					itemBuilder: (context, index) {
+						// 						return ListTile(
+						// 							leading: const Icon(Icons.mp),
+						// 							title: Text(content),
+						// 							// subtitle: Text('${comments[index].author.school.toString()} - ${comments[index].author.username.toString()}'),
+						// 							textColor: Colors.green,
+						// 							tileColor: Colors.black,
+						// 							hoverColor: Colors.orange,
+						// 							splashColor: Colors.teal,
+						// 							selected: true,
+						// 							shape: const RoundedRectangleBorder(
+						// 								side: BorderSide(color: Colors.lime, width: 3),
+						// 								// borderRadius: BorderRadius.all(Radius.circular(15))
+						// 							),
+						// 							onTap: (){
+						// 								Navigator.pushNamed(context, '/Article');
+						// 							},
+						// 						);
+						// 					},
+						// 				);
+						// 		}
+						// 	},
+						// ),
+						FutureBuilder<List<Comment>>(
+							future: articleCommentAPI(article.shortCode), // TODO: Comment
+							builder: (context, snapshot) {
+								if (snapshot.connectionState == ConnectionState.waiting) {
+									return const CircularProgressIndicator();
+									} else if (snapshot.hasError) {
+										return Text('Error: ${snapshot.error}');
+									} else {
+										List<Comment> comments = snapshot.data ?? [];
+										return ListView.builder(
+											itemCount: comments.length,
+											itemBuilder: (context, index) {
+												return ListTile(
+													leading: const Icon(Icons.mp),
+													title: Text(comments[index].content),
+													// subtitle: Text('${comments[index].author.school.toString()} - ${comments[index].author.username.toString()}'),
+													textColor: Colors.green,
+													tileColor: Colors.black,
+													hoverColor: Colors.orange,
+													splashColor: Colors.teal,
+													// selected: true,
+													shape: const RoundedRectangleBorder(
+														side: BorderSide(color: Colors.lime, width: 3),
+														// borderRadius: BorderRadius.all(Radius.circular(15))
+													),
+													onLongPress: (){
+														Clipboard.setData(ClipboardData(text: comments[index].content));
+														const snackBar = SnackBar(content: Text('yunk it!'));
+														ScaffoldMessenger.of(context).showSnackBar(snackBar);
+													},
+												);
+											},
+										);
+								}
 							},
-					),
-					),
-				]
+						),
+						Positioned(
+							bottom: 0,
+							right: 0,
+							child: ElevatedButton(
+								child: const Text("Back"),
+
+								onPressed: () {
+									Navigator.pop(context);
+								},
+							),
+						),
+					]
+				),
 			),
+
 		);
 	}
 }
